@@ -3,10 +3,12 @@
 dbutils.widgets.text("catalog", "lakehouse", "Katalog docelowy")
 dbutils.widgets.text("schema", "dev", "Schemat docelowy")
 dbutils.widgets.text("table", "readings", "Tabela")
+dbutils.widgets.text("file_type", "CSV", "Typ pliku")
 
 catalog = dbutils.widgets.get("catalog")
 schema = dbutils.widgets.get("schema")
 table = dbutils.widgets.get("table")
+file_type = dbutils.widgets.get("file_type")
 
 destination_full_name = f"{catalog}.{schema}.{table}"
 raw_path = "/Volumes/lakehouse/raw/data"
@@ -47,7 +49,6 @@ def get_loader_options(file_type: str):
     return base_options
 
 # Połączenie z widgetem
-file_type = dbutils.widgets.get("file_type")
 options = get_loader_options(file_type)
 
 print(f"file_type: {file_type}")

@@ -32,10 +32,10 @@ resources:
             package_name: lakehouse
             entry_point: main
             parameters:
-              - "--catalog"
-              - "${var.catalog}"
-              - "--schema"
-              - "${var.schema}"
+              catalog: ${var.catalog}
+              schema: dev
+              table: stacje
+              file_type: CSV
           environment_key: default
         - task_key: refresh_pipeline
           depends_on:

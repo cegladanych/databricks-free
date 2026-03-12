@@ -1,25 +1,32 @@
 # Databricks notebook source
 # DBTITLE 1,Ustawianie widgetów dla ścieżki i tabeli
-dbutils.widgets.text("catalog", "lakehouse", "Katalog docelowy")
-dbutils.widgets.text("schema", "dev", "Schemat docelowy")
-dbutils.widgets.text("table", "readings", "Tabela")
-dbutils.widgets.text("file_type", "CSV", "Typ pliku")
+# COMMAND ----------
 
-catalog = dbutils.widgets.get("catalog")
-schema = dbutils.widgets.get("schema")
-table = dbutils.widgets.get("table")
-file_type = dbutils.widgets.get("file_type")
+from pyspark.sql import DataFrame
+from pyspark.sql.functions import input_file_name,col
+import os 
+from databricks.sdk import WorkspaceClient
+workspace = WorkspaceClient()
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
+
+# COMMAND ----------
+workspace.dbutils.widgets.text("catalog", "lakehouse", "Katalog docelowy")
+workspace.dbutils.widgets.text("schema", "dev", "Schemat docelowy")
+workspace.dbutils.widgets.text("table", "readings", "Tabela")
+workspace.dbutils.widgets.text("file_type", "CSV", "Typ pliku")
+
+catalog = workspace.dbutils.widgets.get("catalog")
+schema = workspace.dbutils.widgets.get("schema")
+table = workspace.dbutils.widgets.get("table")
+file_type = workspace.dbutils.widgets.get("file_type")
 
 destination_full_name = f"{catalog}.{schema}.{table}"
 raw_path = "/Volumes/lakehouse/raw/data"
 log_path = "/Volumes/lakehouse/raw/log"
 checkpointLocation_path = f"{log_path}/checkpoints/{table}"
 
-# COMMAND ----------
 
-from pyspark.sql import DataFrame
-from pyspark.sql.functions import input_file_name,col
-import os 
 
 # COMMAND ----------
 
@@ -96,5 +103,6 @@ def write_stream_to_table(df: DataFrame, bronze_table: str):
     )
 
 # Wykonanie strumieniowego odczytu i zapisu
-raw_stream_df = read_stream(raw_path, options)
-write_stream_to_table(raw_stream_df, destination_full_name)
+if __name__ == "__main__":
+    raw_stream_df = read_stream(raw_path, options)
+    write_stream_to_table(raw_stream_df, destination_full_name)

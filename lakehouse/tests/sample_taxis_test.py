@@ -1,18 +1,21 @@
 import random
 from databricks.sdk.runtime import spark
-from pyspark.sql import DataFrame
 import pytest
-import os
-from lakehouse.src.utils.utils import find_all_taxis
-from lakehouse.src.etl.bronze.source_to_raw import get_loader_options, write_data_to_bronze, read_stream
-from pyspark.dbutils import DBUtils
-dbutils = DBUtils(spark)
+
+from lakehouse.src.utils.utils import (
+    find_all_taxis,
+)
+from lakehouse.src.etl.bronze.source_to_raw import (
+    get_loader_options, 
+    write_data_to_bronze, 
+    read_stream
+)
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.getOrCreate()
 
 # --- Setup Test Environment ---
 
-catalog_name = "tests" #os.environ.get("test_env_variable", "default")
+catalog_name = "tests"
 schema_name = f"test_schema_{random.randint(1,int(1e9))}"
 test_schema = f"{catalog_name}.{schema_name}"
 
@@ -50,10 +53,8 @@ def test_write_data_to_bronze(spark_session):
     columns = ["date", "city", "count"]
     test_df = spark.createDataFrame(test_data, columns)
 
-    # zbuduj pełną nazwę tabeli w utworzonym schemacie
     table_name = f"{test_schema}.test_table"
 
-    # Wywołanie funkcji zapisu
     write_data_to_bronze(test_df, 0, table_name)
 
     # Sprawdzenie, czy dane zostały zapisane i nazwy kolumn się zgadzają

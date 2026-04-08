@@ -1,6 +1,6 @@
 import argparse
 from databricks.sdk.runtime import spark
-from lakehouse import taxis
+from utils  import find_all_taxis
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
     spark.sql(f"USE SCHEMA {args.schema}")
 
     # Example: just find all taxis from a sample catalog
-    taxis.find_all_taxis().show(5)
+    find_all_taxis().show(5)
 
 
 if __name__ == "__main__":

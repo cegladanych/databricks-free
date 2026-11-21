@@ -7,8 +7,8 @@ SELECT
    ,li.REF_CODE_NAME
    ,li.ACTIVE
    ,li.REC_DELETED
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_codes') li
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_categories') sc
+FROM ${raw_catalog}.${raw_main_schema}.ref_codes li
+INNER JOIN ${raw_catalog}.${raw_main_schema}.ref_categories sc
 	ON li.REF_CATEGORY_ID = sc.REF_CATEGORY_ID
 WHERE (sc.REF_CATEGORY_NAME = 'Cabin Classes')
 AND li.dwh_current_flag = true
@@ -27,8 +27,8 @@ SELECT
    ,sys_ref_codes.SYS_REF_DISPLAY_CODE
    ,sys_ref_codes.SYS_REF_ACTIVE
    ,sys_ref_codes.REC_DELETED
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.sys_ref_categories') AS sys_ref_categories
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.sys_ref_codes') AS sys_ref_codes
+FROM ${raw_catalog}.${raw_main_schema}.sys_ref_categories AS sys_ref_categories
+INNER JOIN ${raw_catalog}.${raw_main_schema}.sys_ref_codes AS sys_ref_codes
 	ON sys_ref_categories.SYS_REF_CATEGORY_ID = sys_ref_codes.SYS_REF_CATEGORY_ID
 WHERE sys_ref_categories.SYS_REF_CATEGORY_NAME = 'Boarding Methods'
 AND sys_ref_categories.dwh_current_flag = true
@@ -46,8 +46,8 @@ SELECT
    ,ref_codes.REF_CODE_NAME
    ,ref_codes.ACTIVE
    ,ref_codes.REC_DELETED
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_codes') AS ref_codes
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_categories') AS ref_categories
+FROM ${raw_catalog}.${raw_main_schema}.ref_codes AS ref_codes
+INNER JOIN ${raw_catalog}.${raw_main_schema}.ref_categories AS ref_categories
 	ON ref_codes.REF_CATEGORY_ID = ref_categories.REF_CATEGORY_ID
 WHERE ref_categories.REF_CATEGORY_NAME = 'Meal Services'
 AND ref_codes.dwh_current_flag = true
@@ -112,13 +112,13 @@ SELECT
    ,flights.SCHEDULE_STATUS
    ,flights.ACTIVE
 
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.fleet_units') AS fleet_units
-LEFT OUTER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') AS flights
+FROM ${raw_catalog}.${raw_main_schema}.fleet_units AS fleet_units
+LEFT OUTER JOIN ${raw_catalog}.${raw_main_schema}.flights AS flights
 	ON fleet_units.FLEET_UNIT_ID = flights.FLEET_UNIT_ID
 		AND flights.dwh_current_flag = true
 		AND flights.dwh_delete_flag = false
 
-RIGHT OUTER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flight_legs') AS flight_legs
+RIGHT OUTER JOIN ${raw_catalog}.${raw_main_schema}.flight_legs AS flight_legs
 	ON flights.FLIGHT_ID = flight_legs.FLIGHT_ID
 		AND flight_legs.dwh_current_flag = true
 		AND flight_legs.dwh_delete_flag = false  
@@ -126,7 +126,7 @@ RIGHT OUTER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flight_
 LEFT OUTER JOIN VBoarding_Method
 	ON VBoarding_Method.SYS_REF_ID = flight_legs.BOARDING_METHOD
 
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.journey_days') AS journey_days
+INNER JOIN ${raw_catalog}.${raw_main_schema}.journey_days AS journey_days
 ON flight_legs.FLIGHT_ID = journey_days.FLIGHT_ID
 		AND flight_legs.DAY_OF_JOURNEY = journey_days.DAY_OF_JOURNEY
 		AND journey_days.dwh_current_flag = true
@@ -138,17 +138,17 @@ ON VMeal_Services.REF_CODE_ID = journey_days.MEAL_SERVICE_ID
 LEFT OUTER JOIN VCabin_Classes
 ON journey_days.CABIN_CLASS_ID = VCabin_Classes.REF_CODE_ID
 
-LEFT OUTER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.terminal_gates') AS terminal_gates
+LEFT OUTER JOIN ${raw_catalog}.${raw_main_schema}.terminal_gates AS terminal_gates
 	ON flight_legs.GATE_ID = terminal_gates.TERMINAL_GATE_ID
 		AND terminal_gates.dwh_current_flag = true
 		AND terminal_gates.dwh_delete_flag = false
 
-LEFT OUTER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.stations') AS stations
+LEFT OUTER JOIN ${raw_catalog}.${raw_main_schema}.stations AS stations
 	ON flight_legs.AIRPORT_ID = stations.STATION_ID
 		AND stations.dwh_current_flag = true
 		AND stations.dwh_delete_flag = false
 
-LEFT OUTER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.countries') AS countries
+LEFT OUTER JOIN ${raw_catalog}.${raw_main_schema}.countries AS countries
 	ON Countries.COUNTRY_ID = stations.COUNTRY_ID
 		AND Countries.dwh_current_flag = true
 		AND Countries.dwh_delete_flag = false    
@@ -169,8 +169,8 @@ SELECT
       ref_codes.REF_CODE_ID, 
       ref_codes.REF_CODE_NAME
 
-FROM          IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_codes') AS ref_codes 
-INNER JOIN    IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_categories') AS ref_categories 
+FROM          ${raw_catalog}.${raw_main_schema}.ref_codes AS ref_codes 
+INNER JOIN    ${raw_catalog}.${raw_main_schema}.ref_categories AS ref_categories 
 ON            ref_codes.REF_CATEGORY_ID = ref_categories.REF_CATEGORY_ID
 
 WHERE     (ref_categories.REF_CATEGORY_NAME = 'World Regions')
@@ -199,8 +199,8 @@ SELECT
           Countries.COUNTRY_ISO_CODE, 
           Countries.COUNTRY_ISO3_CODE
 
-FROM        IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.stations') AS stations 
-LEFT OUTER JOIN  IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.countries') AS countries 
+FROM        ${raw_catalog}.${raw_main_schema}.stations AS stations 
+LEFT OUTER JOIN  ${raw_catalog}.${raw_main_schema}.countries AS countries 
 ON stations.COUNTRY_ID = Countries.COUNTRY_ID 
 LEFT OUTER JOIN VWorld_Regions 
 ON Countries.WORLD_REGION_ID = VWorld_Regions.REF_CODE_ID
@@ -232,17 +232,17 @@ WITH keytable AS (
         service_items.RFISC_CODE AS AncillaryCode,
         TPI.LEG_DATE AS ServiceDate,
         service_items.SERVICE_ITEM_NAME AS AncillaryName
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI
+    FROM ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI
     LEFT JOIN VStations ON VStations.STATION_ID = TPI.STATION_ID
     AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM 
     ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID AND TPM.REC_DELETED = false AND WAITLISTED = false
     AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') AS flights ON flights.FLIGHT_ID = TPI.FLIGHT_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights AS flights ON flights.FLIGHT_ID = TPI.FLIGHT_ID
     AND flights.dwh_current_flag = true and flights.dwh_delete_flag = FALSE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') AS ancillary_products ON TPI.ANCILLARY_PRODUCT_ID = ancillary_products.ANCILLARY_PRODUCT_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products AS ancillary_products ON TPI.ANCILLARY_PRODUCT_ID = ancillary_products.ANCILLARY_PRODUCT_ID
     AND ancillary_products.dwh_current_flag = true and ancillary_products.dwh_delete_flag = FALSE  
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items ON service_items.SERVICE_ITEM_ID = ancillary_products.SERVICE_ITEM_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_items AS service_items ON service_items.SERVICE_ITEM_ID = ancillary_products.SERVICE_ITEM_ID
     AND service_items.dwh_current_flag = true and service_items.dwh_delete_flag = FALSE    
     WHERE ancillary_products.REC_DELETED = false
         AND TPI.OFFER_STATUS_ID = 0
@@ -272,23 +272,23 @@ AncillaryBooking AS (
         END AS AncillaryType,
         SUM(TPM.EMD_AMOUNT) AS NetAncillaryRevenueUSD,
         COUNT(passengers.PASSENGER_ID) AS BookedPax
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI
+    FROM ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI
     LEFT JOIN VStations ON VStations.STATION_ID = TPI.STATION_ID
     AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID 
     AND TPM.REC_DELETED = false AND WAITLISTED = FALSE
     AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passengers') AS passengers ON passengers.PASSENGER_ID = TPM.PASSENGER_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.passengers AS passengers ON passengers.PASSENGER_ID = TPM.PASSENGER_ID
     AND passengers.dwh_current_flag = true and passengers.dwh_delete_flag = FALSE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') AS flights ON flights.FLIGHT_ID = TPI.FLIGHT_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights AS flights ON flights.FLIGHT_ID = TPI.FLIGHT_ID
     AND flights.dwh_current_flag = true and flights.dwh_delete_flag = FALSE    
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') AS ancillary_products ON TPI.ANCILLARY_PRODUCT_ID = ancillary_products.ANCILLARY_PRODUCT_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products AS ancillary_products ON TPI.ANCILLARY_PRODUCT_ID = ancillary_products.ANCILLARY_PRODUCT_ID
     AND ancillary_products.dwh_current_flag = true and ancillary_products.dwh_delete_flag = FALSE       
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items ON service_items.SERVICE_ITEM_ID = ancillary_products.SERVICE_ITEM_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_items AS service_items ON service_items.SERVICE_ITEM_ID = ancillary_products.SERVICE_ITEM_ID
     AND service_items.dwh_current_flag = true and service_items.dwh_delete_flag = FALSE      
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_item_accounting') IMA ON IMA.SERVICE_ITEM_ID = ancillary_products.SERVICE_ITEM_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_item_accounting IMA ON IMA.SERVICE_ITEM_ID = ancillary_products.SERVICE_ITEM_ID
     AND IMA.dwh_current_flag = true and IMA.dwh_delete_flag = FALSE       
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_codes') LI ON LI.REF_CODE_ID = IMA.GL_ACCOUNT_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ref_codes LI ON LI.REF_CODE_ID = IMA.GL_ACCOUNT_ID
     AND LI.dwh_current_flag = true and LI.dwh_delete_flag = FALSE       
     WHERE ancillary_products.REC_DELETED = false
         AND TPI.OFFER_STATUS_ID = 0
@@ -310,19 +310,19 @@ suppliercosttable AS (
         SUM(QTY_BILLED) AS PaxBilled,
         SUM(QTY_FLOWN) AS PaxFlown,
         CAST(SUM(IDE.LINE_COST) * IDO.FX_RATE_TO_USD AS decimal(10,2)) AS TotalSupplierCost
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.supplier_invoice_lines') IDE
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.supplier_invoices') IDO ON IDO.SUPPLIER_INVOICE_ID = IDE.SUPPLIER_INVOICE_ID
+    FROM ${raw_catalog}.${raw_main_schema}.supplier_invoice_lines IDE
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.supplier_invoices IDO ON IDO.SUPPLIER_INVOICE_ID = IDE.SUPPLIER_INVOICE_ID
     AND IDE.dwh_current_flag = true and IDE.dwh_delete_flag = FALSE 
     AND IDO.dwh_current_flag = true and IDO.dwh_delete_flag = FALSE     
-    INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.suppliers') AS suppliers ON IDO.SUPPLIER_ID = suppliers.SUPPLIER_ID
+    INNER JOIN ${raw_catalog}.${raw_main_schema}.suppliers AS suppliers ON IDO.SUPPLIER_ID = suppliers.SUPPLIER_ID
     AND suppliers.dwh_current_flag = true and suppliers.dwh_delete_flag = FALSE    
-    INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.currencies') AS currencies ON IDO.CURRENCY_ID = Currencies.CURRENCY_ID
+    INNER JOIN ${raw_catalog}.${raw_main_schema}.currencies AS currencies ON IDO.CURRENCY_ID = Currencies.CURRENCY_ID
     AND currencies.dwh_current_flag = true and currencies.dwh_delete_flag = FALSE     
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items ON IDE.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_items AS service_items ON IDE.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
     AND service_items.dwh_current_flag = true and service_items.dwh_delete_flag = FALSE       
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') AS flights ON flights.FLIGHT_ID = IDO.FLIGHT_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights AS flights ON flights.FLIGHT_ID = IDO.FLIGHT_ID
     AND flights.dwh_current_flag = true and flights.dwh_delete_flag = FALSE      
-    INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.stations') AS stations ON IDO.SERVICE_STATION_ID = stations.STATION_ID
+    INNER JOIN ${raw_catalog}.${raw_main_schema}.stations AS stations ON IDO.SERVICE_STATION_ID = stations.STATION_ID
     AND stations.dwh_current_flag = true and stations.dwh_delete_flag = FALSE     
     WHERE IDO.INVOICE_STATUS_ID IN (1,30)
         AND IDO.INVOICE_TYPE_ID = 6
@@ -424,15 +424,15 @@ BundledCountTable AS (
     PB.PNR_PAX_REF
     ,COUNT(CASE WHEN TP.BUNDLED_IN_FARE = false THEN 1 ELSE NULL END) AS OptionalCount
     ,SUM(CASE WHEN TP.BUNDLED_IN_FARE = true THEN 1 ELSE 0 END) AS BundledCount
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB ON TPM.PASSENGER_ID = PB.PASSENGER_ID
+FROM ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM
+INNER JOIN ${raw_catalog}.${raw_main_schema}.passenger_bookings PB ON TPM.PASSENGER_ID = PB.PASSENGER_ID
 AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE 
 AND PB.dwh_current_flag = true and PB.dwh_delete_flag = FALSE     
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
+LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
 AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE  
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
+LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
 AND TP.dwh_current_flag = true and TP.dwh_delete_flag = FALSE 
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C ON PB.FLIGHT_ID = C.FLIGHT_ID
+LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights C ON PB.FLIGHT_ID = C.FLIGHT_ID
 AND C.dwh_current_flag = true and C.dwh_delete_flag = FALSE 
 GROUP BY PB.PNR_PAX_REF
 ),
@@ -456,19 +456,19 @@ SELECT
 	  , CAST(TP.BUNDLED_IN_FARE AS INT) AS BundledFlag
       ,EMD_AMOUNT
 
-  FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM
-  INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB on TPM.PASSENGER_ID = PB.PASSENGER_ID
+  FROM ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM
+  INNER JOIN ${raw_catalog}.${raw_main_schema}.passenger_bookings PB on TPM.PASSENGER_ID = PB.PASSENGER_ID
   AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE 
   AND PB.dwh_current_flag = true and PB.dwh_delete_flag = FALSE   
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI on TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI on TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
   AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE   
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP on TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP on TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
   AND TP.dwh_current_flag = true and TP.dwh_delete_flag = FALSE     
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C on PB.FLIGHT_ID = C.FLIGHT_ID
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights C on PB.FLIGHT_ID = C.FLIGHT_ID
   AND C.dwh_current_flag = true and C.dwh_delete_flag = FALSE    
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.stations') ci on TPI.STATION_ID = ci.STATION_ID
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.stations ci on TPI.STATION_ID = ci.STATION_ID
   AND ci.dwh_current_flag = true and ci.dwh_delete_flag = FALSE    
-  Left join IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items on service_items.SERVICE_ITEM_ID = TP.SERVICE_ITEM_ID	
+  Left join ${raw_catalog}.${raw_main_schema}.service_items AS service_items on service_items.SERVICE_ITEM_ID = TP.SERVICE_ITEM_ID	
   AND service_items.dwh_current_flag = true and service_items.dwh_delete_flag = FALSE      
   LEFT JOIN BundledCountTable ON PB.PNR_PAX_REF = BundledCountTable.PNR_PAX_REF
   where EMD_AMOUNT > 0
@@ -499,7 +499,7 @@ BookingDays AS (
         VI.FLIGHT_NUMBER,
         VI.LEG_DATE,
         VI.AIRPORT_NAME
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB
+    FROM ${raw_catalog}.${raw_main_schema}.passenger_bookings PB
     INNER JOIN VFlight_Legs VI ON PB.FLIGHT_ID = VI.FLIGHT_ID
   AND PB.dwh_current_flag = true AND PB.dwh_delete_flag = FALSE      
 ),
@@ -519,19 +519,19 @@ BookedAncillaries AS (
         SUBSTRING(DATEADD(MINUTE, TPI.SERVICE_DURATION_HRS * 60, CAST(TPI.SERVICE_START_TIME AS TIMESTAMP_NTZ)), 12, 5) AS ServiceEndTime,
         CAST(TP.BUNDLED_IN_FARE AS INT) AS BundledFlag,
         TPM.EMD_AMOUNT
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM ON PB.PASSENGER_ID = TPM.PASSENGER_ID AND TPM.REC_DELETED = false AND TPM.WAITLISTED = false
+    FROM ${raw_catalog}.${raw_main_schema}.passenger_bookings PB
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM ON PB.PASSENGER_ID = TPM.PASSENGER_ID AND TPM.REC_DELETED = false AND TPM.WAITLISTED = false
     AND PB.dwh_current_flag = true and PB.dwh_delete_flag = FALSE
     AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE          
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID AND TPI.REC_DELETED = false
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID AND TPI.REC_DELETED = false
     AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE   
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID AND TP.REC_DELETED = false
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID AND TP.REC_DELETED = false
     AND TP.dwh_current_flag = true and TP.dwh_delete_flag = FALSE  
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C ON PB.FLIGHT_ID = C.FLIGHT_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.flights C ON PB.FLIGHT_ID = C.FLIGHT_ID
     AND C.dwh_current_flag = true and C.dwh_delete_flag = FALSE   
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.stations') AS stations ON TPI.STATION_ID = stations.STATION_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.stations AS stations ON TPI.STATION_ID = stations.STATION_ID
     AND stations.dwh_current_flag = true and stations.dwh_delete_flag = FALSE   
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items ON TP.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.service_items AS service_items ON TP.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
     AND service_items.dwh_current_flag = true and service_items.dwh_delete_flag = FALSE  
 ),
 
@@ -541,15 +541,15 @@ AncillaryCounts AS (
         PB.PNR_PAX_REF,
         SUM(CASE WHEN TP.BUNDLED_IN_FARE = true THEN 1 ELSE 0 END) AS BundledCount,
         SUM(CASE WHEN TP.BUNDLED_IN_FARE = false THEN 1 ELSE 0 END) AS OptionalCount
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB ON TPM.PASSENGER_ID = PB.PASSENGER_ID
+    FROM ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM
+    JOIN ${raw_catalog}.${raw_main_schema}.passenger_bookings PB ON TPM.PASSENGER_ID = PB.PASSENGER_ID
     AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE     
     AND PB.dwh_current_flag = true and PB.dwh_delete_flag = FALSE  
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
     AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE     
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
     AND TP.dwh_current_flag = true and TP.dwh_delete_flag = FALSE 
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C ON PB.FLIGHT_ID = C.FLIGHT_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.flights C ON PB.FLIGHT_ID = C.FLIGHT_ID
     AND C.dwh_current_flag = true and C.dwh_delete_flag = FALSE  
     
     GROUP BY PB.PNR_PAX_REF
@@ -606,22 +606,22 @@ AncillaryOfferTable AS (
         COALESCE(TPI.INVENTORY_CAPACITY, COUNT(DISTINCT TPM.PASSENGER_ID)) AS CapacityPax,
         COUNT(DISTINCT TPM.PASSENGER_ID) AS BookedPax,
         TPRP.BASE_RETAIL_PRICE AS AncillaryPrice
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') AS ancillary_products ON TPI.ANCILLARY_PRODUCT_ID = ancillary_products.ANCILLARY_PRODUCT_ID
+    FROM ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products AS ancillary_products ON TPI.ANCILLARY_PRODUCT_ID = ancillary_products.ANCILLARY_PRODUCT_ID
     AND TPI.dwh_current_flag = true and TPI.dwh_delete_flag = FALSE  
     AND ancillary_products.dwh_current_flag = true and ancillary_products.dwh_delete_flag = FALSE      
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') AS flights ON TPI.FLIGHT_ID = flights.FLIGHT_ID
+    JOIN ${raw_catalog}.${raw_main_schema}.flights AS flights ON TPI.FLIGHT_ID = flights.FLIGHT_ID
     AND flights.dwh_current_flag = true and flights.dwh_delete_flag = FALSE    
     JOIN VStations ON TPI.STATION_ID = VStations.STATION_ID
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID AND TPM.REC_DELETED = false AND TPM.WAITLISTED = false
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID AND TPM.REC_DELETED = false AND TPM.WAITLISTED = false
     AND TPM.dwh_current_flag = true and TPM.dwh_delete_flag = FALSE     
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items ON ancillary_products.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_items AS service_items ON ancillary_products.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
     AND service_items.dwh_current_flag = true and service_items.dwh_delete_flag = FALSE     
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_item_accounting') IMA ON service_items.SERVICE_ITEM_ID = IMA.SERVICE_ITEM_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_item_accounting IMA ON service_items.SERVICE_ITEM_ID = IMA.SERVICE_ITEM_ID
     AND IMA.dwh_current_flag = true and IMA.dwh_delete_flag = FALSE     
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_codes') LI ON IMA.GL_ACCOUNT_ID = LI.REF_CODE_ID
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ref_codes LI ON IMA.GL_ACCOUNT_ID = LI.REF_CODE_ID
      AND LI.dwh_current_flag = true and LI.dwh_delete_flag = FALSE    
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_prices') TPRP ON service_items.SERVICE_ITEM_ID = TPRP.SERVICE_ITEM_ID AND TPRP.FARE_EFFECTIVE_FROM <= TPI.LEG_DATE AND TPRP.FARE_EFFECTIVE_TO >= TPI.LEG_DATE
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_prices TPRP ON service_items.SERVICE_ITEM_ID = TPRP.SERVICE_ITEM_ID AND TPRP.FARE_EFFECTIVE_FROM <= TPI.LEG_DATE AND TPRP.FARE_EFFECTIVE_TO >= TPI.LEG_DATE
      AND TPRP.dwh_current_flag = true and TPRP.dwh_delete_flag = FALSE    
     LEFT JOIN JourneyBoundaries CB ON CB.FLIGHT_ID = flights.FLIGHT_ID
     WHERE YEAR(flights.SCHED_DEPARTURE_DATE) > 2021
@@ -908,7 +908,7 @@ EMAIL_ADDRESS,
 OPT_OUT_DATE,
  ROW_NUMBER() OVER 
      (PARTITION BY EMAIL_ADDRESS ORDER BY OPT_OUT_DATE DESC) AS RowNum
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_feature_schema || '.email_consents') AS email_consents 
+FROM ${raw_catalog}.${raw_feature_schema}.email_consents AS email_consents 
 WHERE 1=1
 AND dwh_current_flag = true AND dwh_delete_flag = false
 )
@@ -950,7 +950,7 @@ LEFT JOIN (
   FIRST_NAME,
   LAST_NAME,
   email 
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.pnr_passengers') AS pnr_passengers
+    FROM ${raw_catalog}.${raw_branch_schema}.pnr_passengers AS pnr_passengers
     WHERE dwh_current_flag = true and dwh_delete_flag = false
 	) p
 ON t1.PnrPaxRef = p.PnrPaxRef
@@ -983,7 +983,7 @@ LEFT JOIN (
   FIRST_NAME,
   LAST_NAME,  
   email 
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.pnr_passengers') AS pnr_passengers
+    FROM ${raw_catalog}.${raw_branch_schema}.pnr_passengers AS pnr_passengers
     WHERE dwh_current_flag = true and dwh_delete_flag = false
 	) p
 ON t1.PnrPaxRef = p.PnrPaxRef
@@ -1001,19 +1001,19 @@ s.CURRENCY_CODE,
 o.CURRENCY_NAME
 
 FROM Top3Offers t
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.ticket_sales') s
+INNER JOIN ${raw_catalog}.${raw_branch_schema}.ticket_sales s
 ON t.PNR = s.PNR
 AND s.dwh_current_flag = true AND s.dwh_delete_flag = FALSE 
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.flight_schedule') c
+INNER JOIN ${raw_catalog}.${raw_branch_schema}.flight_schedule c
 ON s.FLIGHT_NO = c.FLIGHT_NO 
 AND c.dwh_current_flag = true AND c.dwh_delete_flag = false
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.office_currencies') o
+LEFT JOIN ${raw_catalog}.${raw_branch_schema}.office_currencies o
 ON s.POS_OFFICE = o.POS_OFFICE
 AND s.CURRENCY_CODE = o.CURRENCY_CODE
 AND o.dwh_current_flag = true AND o.dwh_delete_flag = FALSE 
 
-WHERE ( c.DEPARTURE_DATE >= date_add(DAY, CAST(:FromOffset AS INT),current_date) 
-AND c.DEPARTURE_DATE <= date_add(DAY, CAST(:ToOffset AS INT),current_date) ) 
+WHERE ( c.DEPARTURE_DATE >= date_add(DAY, CAST('${FromOffset}' AS INT),current_date) 
+AND c.DEPARTURE_DATE <= date_add(DAY, CAST('${ToOffset}' AS INT),current_date) ) 
 AND s.TICKET_STATUS <> 'X'
 )
 
@@ -1066,7 +1066,7 @@ INNER JOIN pax1 p1
 ON a.PNR = p1.PNR
 LEFT JOIN pax2 p2
 ON a.PNR = p2.PNR
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.flight_schedule') c
+INNER JOIN ${raw_catalog}.${raw_branch_schema}.flight_schedule c
 ON a.FlightNo = c.FLIGHT_NO 
 AND c.dwh_current_flag = true AND c.dwh_delete_flag = false
 LEFT JOIN Unique_Email_Consent e1
@@ -1091,20 +1091,20 @@ AS (
     ,COUNT(CASE WHEN TP.BUNDLED_IN_FARE = false THEN 1 ELSE NULL END) AS OptionalCount
     ,SUM(CASE WHEN TP.BUNDLED_IN_FARE = true THEN 1 ELSE 0 END) AS BundledCount
 
-FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB 
+FROM ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM
+INNER JOIN ${raw_catalog}.${raw_main_schema}.passenger_bookings PB 
   ON TPM.PASSENGER_ID = PB.PASSENGER_ID
   AND PB.dwh_current_flag = true 
   AND PB.dwh_delete_flag = false
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI 
+LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI 
   ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
   AND TPI.dwh_current_flag = true
   AND TPI.dwh_delete_flag = false
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP 
+LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP 
   ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
   AND TP.dwh_current_flag = true
   AND TP.dwh_delete_flag = false
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C 
+LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights C 
   ON PB.FLIGHT_ID = C.FLIGHT_ID
   AND C.dwh_current_flag = true
   AND C.dwh_delete_flag = false
@@ -1134,28 +1134,28 @@ SELECT
 	  END as OptBundled
 	  , CAST(TP.BUNDLED_IN_FARE AS INT) AS BundledFlag
 
-  FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM
-  INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB 
+  FROM ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM
+  INNER JOIN ${raw_catalog}.${raw_main_schema}.passenger_bookings PB 
     on TPM.PASSENGER_ID = PB.PASSENGER_ID
     AND PB.dwh_current_flag = true 
     AND PB.dwh_delete_flag = false  
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI 
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI 
     on TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
     AND TPI.dwh_current_flag = true
     AND TPI.dwh_delete_flag = false
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP 
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP 
     on TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
     AND TP.dwh_current_flag = true
     AND TP.dwh_delete_flag = false    
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C 
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.flights C 
     on PB.FLIGHT_ID = C.FLIGHT_ID
     AND C.dwh_current_flag = true
     AND C.dwh_delete_flag = false  
-  LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.stations') Station 
+  LEFT JOIN ${raw_catalog}.${raw_main_schema}.stations Station 
     on TPI.STATION_ID = Station.STATION_ID
     AND Station.dwh_current_flag = true
     AND Station.dwh_delete_flag = false  
-  Left join IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items 
+  Left join ${raw_catalog}.${raw_main_schema}.service_items AS service_items 
     on service_items.SERVICE_ITEM_ID = TP.SERVICE_ITEM_ID
     AND service_items.dwh_current_flag = true
     AND service_items.dwh_delete_flag = false  	
@@ -1195,7 +1195,7 @@ BookingDays AS (
         VI.FLIGHT_NUMBER,
         VI.LEG_DATE,
         VI.AIRPORT_NAME
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB
+    FROM ${raw_catalog}.${raw_main_schema}.passenger_bookings PB
     INNER JOIN VFlight_Legs VI 
       ON PB.FLIGHT_ID = VI.FLIGHT_ID
     WHERE 1=1
@@ -1209,16 +1209,16 @@ AncillaryCounts AS (
         PB.PNR_PAX_REF,
         SUM(CASE WHEN TP.BUNDLED_IN_FARE = true THEN 1 ELSE 0 END) AS BundledCount,
         SUM(CASE WHEN TP.BUNDLED_IN_FARE = false THEN 1 ELSE 0 END) AS OptionalCount
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.passenger_bookings') PB 
+    FROM ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM
+    JOIN ${raw_catalog}.${raw_main_schema}.passenger_bookings PB 
       ON TPM.PASSENGER_ID = PB.PASSENGER_ID
       AND PB.dwh_current_flag = true 
       AND PB.dwh_delete_flag = false       
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI 
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI 
       ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID
       AND TPI.dwh_current_flag = true
       AND TPI.dwh_delete_flag = false      
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP 
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP 
       ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
       AND TP.dwh_current_flag = true
       AND TP.dwh_delete_flag = false       
@@ -1262,36 +1262,36 @@ AncillaryOfferTable AS (
         COUNT(DISTINCT TPM.PASSENGER_ID) AS BookedPax,
         TPRP.BASE_RETAIL_PRICE AS AncillaryPrice
 
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_offers') TPI
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_products') TP
+    FROM ${raw_catalog}.${raw_main_schema}.ancillary_offers TPI
+    JOIN ${raw_catalog}.${raw_main_schema}.ancillary_products TP
       ON TPI.ANCILLARY_PRODUCT_ID = TP.ANCILLARY_PRODUCT_ID
       AND TP.dwh_current_flag = true
       AND TP.dwh_delete_flag = false   
-    JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.flights') C
+    JOIN ${raw_catalog}.${raw_main_schema}.flights C
       ON TPI.FLIGHT_ID = C.FLIGHT_ID
       AND C.dwh_current_flag = true
       AND C.dwh_delete_flag = false    
     JOIN VStations 
       ON TPI.STATION_ID = VStations.STATION_ID
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_sales') TPM 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_sales TPM 
       ON TPM.ANCILLARY_OFFER_ID = TPI.ANCILLARY_OFFER_ID 
         AND TPM.REC_DELETED = false
         AND TPM.WAITLISTED = FALSE
         AND TPM.dwh_current_flag = true
         AND TPM.dwh_delete_flag = false   
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_items') AS service_items 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_items AS service_items 
       ON TP.SERVICE_ITEM_ID = service_items.SERVICE_ITEM_ID
       AND service_items.dwh_current_flag = true
       AND service_items.dwh_delete_flag = false  
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.service_item_accounting') IMA 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.service_item_accounting IMA 
       ON service_items.SERVICE_ITEM_ID = IMA.SERVICE_ITEM_ID
       AND IMA.dwh_current_flag = true
       AND IMA.dwh_delete_flag = false      
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ref_codes') LI 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ref_codes LI 
       ON IMA.GL_ACCOUNT_ID = LI.REF_CODE_ID
       AND LI.dwh_current_flag = true
       AND LI.dwh_delete_flag = false      
-    LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_main_schema || '.ancillary_prices') TPRP 
+    LEFT JOIN ${raw_catalog}.${raw_main_schema}.ancillary_prices TPRP 
       ON service_items.SERVICE_ITEM_ID = TPRP.SERVICE_ITEM_ID 
       AND TPRP.FARE_EFFECTIVE_FROM <= TPI.LEG_DATE 
       AND TPRP.FARE_EFFECTIVE_TO >= TPI.LEG_DATE
@@ -1551,7 +1551,7 @@ LEFT JOIN (
   FIRST_NAME,
   LAST_NAME,
   email 
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.pnr_passengers') AS pnr_passengers
+    FROM ${raw_catalog}.${raw_branch_schema}.pnr_passengers AS pnr_passengers
     WHERE dwh_current_flag = true and dwh_delete_flag = false
 	) p
 ON t1.PnrPaxRef = p.PnrPaxRef
@@ -1585,7 +1585,7 @@ LEFT JOIN (
   FIRST_NAME,
   LAST_NAME,  
   email 
-    FROM IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.pnr_passengers') AS pnr_passengers
+    FROM ${raw_catalog}.${raw_branch_schema}.pnr_passengers AS pnr_passengers
     WHERE dwh_current_flag = true and dwh_delete_flag = false
 	) p
 ON t1.PnrPaxRef = p.PnrPaxRef
@@ -1603,19 +1603,19 @@ s.CURRENCY_CODE,
 o.CURRENCY_NAME
 
 FROM Top3OffersBundled t
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.ticket_sales') s
+INNER JOIN ${raw_catalog}.${raw_branch_schema}.ticket_sales s
 ON t.PNR = s.PNR
 AND s.dwh_current_flag = true AND s.dwh_delete_flag = FALSE 
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.flight_schedule') c
+INNER JOIN ${raw_catalog}.${raw_branch_schema}.flight_schedule c
 ON s.FLIGHT_NO = c.FLIGHT_NO 
 AND c.dwh_current_flag = true AND c.dwh_delete_flag = false
-LEFT JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.office_currencies') o
+LEFT JOIN ${raw_catalog}.${raw_branch_schema}.office_currencies o
 ON s.POS_OFFICE = o.POS_OFFICE
 AND s.CURRENCY_CODE = o.CURRENCY_CODE
 AND o.dwh_current_flag = true AND o.dwh_delete_flag = FALSE 
 
-WHERE ( c.DEPARTURE_DATE >= date_add(DAY, CAST(:FromOffset AS INT),current_date) 
-AND c.DEPARTURE_DATE <= date_add(DAY, CAST(:ToOffset AS INT),current_date) )
+WHERE ( c.DEPARTURE_DATE >= date_add(DAY, CAST('${FromOffset}' AS INT),current_date) 
+AND c.DEPARTURE_DATE <= date_add(DAY, CAST('${ToOffset}' AS INT),current_date) )
 AND s.TICKET_STATUS <> 'X'
 )
 
@@ -1668,7 +1668,7 @@ INNER JOIN pax1 p1
 ON a.PNR = p1.PNR
 LEFT JOIN pax2 p2
 ON a.PNR = p2.PNR
-INNER JOIN IDENTIFIER(:raw_catalog || '.' || :raw_branch_schema || '.flight_schedule') c
+INNER JOIN ${raw_catalog}.${raw_branch_schema}.flight_schedule c
 ON a.FlightNo = c.FLIGHT_NO 
 AND c.dwh_current_flag = true AND c.dwh_delete_flag = false
 LEFT JOIN Unique_Email_Consent e1

@@ -1,0 +1,21 @@
+resources:
+  pipelines:
+    shares:
+      name: "Shares"
+      configuration:
+        FromOffset: "90"
+        ToOffset: "90"
+        raw_catalog: raw
+        raw_main_schema: dbo
+        raw_branch_schema: dbr
+        raw_feature_schema: dbf
+      libraries:
+        - notebook:
+            path: ../src/etl/lakeflow/Shares.sql
+      catalog: raw
+      schema: recommend
+      continuous: false
+      channel: CURRENT
+      serverless: true
+      tags:
+        businessUnit: Marketing

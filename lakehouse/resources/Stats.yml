@@ -1,0 +1,26 @@
+resources:
+  pipelines:
+    pipeline_reporting_stats:
+      name: "reporting stats"
+      configuration:
+        raw_catalog: raw
+        raw_crm_schema: d365crm
+        gold_catalog: gold
+        gold_schema: gold
+        gold_maindata_schema: maindata
+        raw_main_schema: main
+        reporting_catalog: reporting
+        reporting_schema: reporting
+        raw_sup_schema: sup
+        d365crm_schema: d365crm
+        raw_generic_schema: generic
+        gold_ncf_schema: ncf
+      libraries:
+        # Python port of Stats.sql (both define the same tables - only one of them may be listed here)
+        - file:
+            path: ../src/etl/lakeflow/Stats.py
+      schema: reporting
+      photon: true
+      catalog: reporting
+      serverless: true
+

@@ -1,0 +1,22 @@
+# Pipeline for Amazon books ingestion with data-quality expectations
+# Source code: src/expectations/transformations/my_transformation.py
+
+resources:
+  pipelines:
+    books_expectations:
+      name: books_expectations
+      # Tables in the code use fully-qualified names (bronze.dbo.*),
+      # so these are just the defaults for any unqualified names.
+      catalog: bronze
+      schema: dbo
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      root_path: "../src/expectations"
+
+      libraries:
+        - glob:
+            include: ../src/expectations/transformations/**
+
+      tags:
+        layer: bronze

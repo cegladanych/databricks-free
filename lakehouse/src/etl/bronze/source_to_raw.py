@@ -1,5 +1,17 @@
 # Databricks notebook source
-# DBTITLE 1,Ustawianie widgetów dla ścieżki i tabeli
+# MAGIC %pip install --force-reinstall /Workspace/Users/krzysiek@cegladanych.pl/.bundle/lakehouse/dev/artifacts/.internal/lakehouse-0.0.1-py3-none-any.whl
+
+# COMMAND ----------
+
+from utils.utils import find_all_taxis
+from utils.reader import get_data
+from utils.logger import get_data_v2
+
+# COMMAND ----------
+
+taxis = get_data('lakehouse','dev','readings')
+taxis.display()
+
 # COMMAND ----------
 
 from pyspark.sql import DataFrame
@@ -11,6 +23,7 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.getOrCreate()
 
 # COMMAND ----------
+
 workspace.dbutils.widgets.text("catalog", "lakehouse", "Katalog docelowy")
 workspace.dbutils.widgets.text("schema", "dev", "Schemat docelowy")
 workspace.dbutils.widgets.text("table", "readings", "Tabela")

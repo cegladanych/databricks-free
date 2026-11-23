@@ -61,3 +61,6 @@ def test_write_data_to_bronze(spark_session):
     saved_df = spark.table(table_name)
     assert saved_df.count() == 2
     assert set(saved_df.columns) == set(columns)
+
+def test_przyklad():
+    assert 1==1

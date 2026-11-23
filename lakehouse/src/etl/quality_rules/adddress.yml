@@ -1,0 +1,106 @@
+- check:
+    arguments:
+      column: AddressID
+    function: is_not_null
+  criticality: error
+  name: AddressID_is_null
+
+- check:
+    arguments:
+      column: AddressID
+      max_limit: 1103
+      min_limit: 39
+    function: is_in_range
+  criticality: error
+  name: AddressID_isnt_in_range
+
+- check:
+    arguments:
+      column: AddressLine1
+    function: is_not_null
+  criticality: error
+  name: AddressLine1_is_null
+- check:
+    arguments:
+      allowed:
+      - Floor 7
+      - Stanford House
+      - P.O. Box 803
+      - Edward Way
+      - 19th Floor
+      - Suite 2501
+      - Raven House, Kingsgate
+      - Ste 1071
+      column: AddressLine2
+    function: is_in_list
+  criticality: error
+  name: AddressLine2_other_value
+
+- check:
+    arguments:
+      column: AddressLine2
+      trim_strings: true
+    function: is_not_null_and_not_empty
+  criticality: warn
+  name: AddressLine2_is_null_or_empty
+
+- check:
+    arguments:
+      column: City
+    function: is_not_null
+  criticality: error
+  name: City_is_null
+
+- check:
+    arguments:
+      column: StateProvince
+    function: is_not_null
+  criticality: error
+  name: StateProvince_is_null
+
+- check:
+    arguments:
+      column: CountryRegion
+    function: is_not_null
+  criticality: error
+  name: CountryRegion_is_null
+- check:
+    arguments:
+      allowed:
+      - United States
+      - Canada
+      - United Kingdom
+      column: CountryRegion
+    function: is_in_list
+  criticality: error
+  name: CountryRegion_other_value
+
+- check:
+    arguments:
+      column: PostalCode
+    function: is_not_null
+  criticality: error
+  name: PostalCode_is_null
+  
+- check:
+    arguments:
+      column: rowguid
+    function: is_not_null
+  criticality: error
+  name: rowguid_is_null
+
+- check:
+    arguments:
+      column: ModifiedDate
+    function: is_not_null
+  criticality: error
+  name: ModifiedDate_is_null
+
+- check:
+    arguments:
+      column: ModifiedDate
+      max_limit: 2008-06-01T00:00:00.000000+0000
+      min_limit: 2005-07-01T00:00:00.000000+0000
+    function: is_in_range
+  criticality: error
+  name: ModifiedDate_isnt_in_range
